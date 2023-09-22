@@ -1,0 +1,14 @@
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\bin\Debug\net6.0\cloud.exe
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\bin\Debug\net6.0\cloud.deps.json
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\bin\Debug\net6.0\cloud.runtimeconfig.json
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\bin\Debug\net6.0\cloud.dll
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\bin\Debug\net6.0\cloud.pdb
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.GeneratedMSBuildEditorConfig.editorconfig
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.AssemblyInfoInputs.cache
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.AssemblyInfo.cs
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.csproj.CoreCompileInputs.cache
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.dll
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\refint\cloud.dll
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.pdb
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\cloud.genruntimeconfig.cache
+D:\01.ドキュメント\12.機械開発G_川工\05.膜厚検査ロボット\50.テストプログラム\APItest\cloud\obj\Debug\net6.0\ref\cloud.dll
