@@ -20,19 +20,23 @@ namespace Web_api
         {
             Login_api login_api = new Login_api();
             Search_select_items_api search_select_items_api = new Search_select_items_api();
+            Paint_type_measurement_pots_get_api Paint_type_measurement_pots_get_api = new Paint_type_measurement_pots_get_api();
 
             await login_api.LoginAsync();
             await search_select_items_api.Search_select_items();
+            await Paint_type_measurement_pots_get_api.Paint_type_measurement_pots_get();
         }
     }
-    
 
+
+    #region ログイン
     class Login_api
     {
         
         public static HttpClient client = new HttpClient();
         
         public static bool isLogin = false;　//staticを付けることでグローバル変数のような扱いができる
+        public static int Koji_id = 0;
 
         public async Task LoginAsync()
         {
@@ -65,6 +69,12 @@ namespace Web_api
                 Console.WriteLine(responseBody?.koj_id);
                 Console.WriteLine(responseBody?.plant_id);
 
+                if (responseBody?.koj_id != null)
+                {
+                    Koji_id = (int)responseBody?.koj_id;
+                }
+                
+
                 //リクエストヘッダにトークンをセット
                 client.DefaultRequestHeaders.Add("Authorization", responseBody?.token);
 
@@ -77,14 +87,16 @@ namespace Web_api
             
         }
     }
+    #endregion
 
+    #region 担当工事取得
     class Search_select_items_api
     {
         public async Task Search_select_items()
         {
             if (Login_api.isLogin) // ログイン中の場合
             {
-                //担当工事取得
+                // 担当工事取得
                 var response = await Login_api.client.PostAsync(
                     "masters/apis/kouji/tnt_koujis", null);
 
@@ -92,6 +104,7 @@ namespace Web_api
                 {
                     Console.WriteLine("OK!!!!");
                     var responseBody = await response.Content.ReadFromJsonAsync<Response_koujis>();
+                    
                     if (responseBody != null)
                     {
                         if (responseBody?.koujis != null)
@@ -105,13 +118,56 @@ namespace Web_api
                 {
                     Console.WriteLine("ERROR!!!!");
                 }
-
-
-
             }
         }
     }
+    #endregion
 
+    #region 塗装系、測定時点取得
+    class Paint_type_measurement_pots_get_api
+    {
+        public async Task Paint_type_measurement_pots_get()
+        {
+            if (Login_api.isLogin) // ログイン中の場合
+            {
+                // 塗装系、測定時点取得
+                var response = await Login_api.client.PostAsJsonAsync(
+                    "ios/makuatsu/search_select_items",
+                    new RequestBody_item_set
+                    {
+                        koj_id = Login_api.Koji_id
+                    }
+
+                ); // レスポンスのステータスコードが成功していたら Answer の値を出力
+
+
+            if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("OK2!!!!");
+                    var responseBody = await response.Content.ReadFromJsonAsync<Response_item_set>();
+
+                    if (responseBody != null)
+                    {
+                        if (responseBody?.item_set != null)
+                        {
+                            for (int i = 0; i < responseBody?.item_set.Length; i++)
+                                Console.WriteLine(responseBody?.item_set[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ERROR2!!!!");
+                }
+            }
+
+        }
+
+    }
+
+    #endregion
+
+    #region ログイン　リクエスト・レスポンス
     // リクエストとレスポンス
     class RequestBody
     {
@@ -130,7 +186,9 @@ namespace Web_api
         public int? koj_id { get; set; }
         public int? plant_id { get; set; }
     }
+    #endregion
 
+    #region 担当工事取得　リクエスト・レスポンス
     class Response_koujis
     {
         public koujis[]? koujis { get; set; }
@@ -165,6 +223,26 @@ namespace Web_api
         public int? upd_tnt_id { get; set; }
         public string? upd_at { get; set; }
     }
+    #endregion
+
+    #region 塗装系、測定時点取得　リクエスト・レスポンス
+    class RequestBody_item_set
+    {
+        public int? koj_id { get; set; }
+    }
+
+class Response_item_set
+    {
+        public item_set[]? item_set { get; set; }
+    }
+
+    class item_set
+    {
+        public string[]? paint_types { get; set; }
+        public string []? measurement_pots { get; set; }
+    }
+
+    #endregion
 }
 
 #endregion
@@ -186,7 +264,7 @@ namespace Web_api
 //                " http://ec2-52-192-250-220.ap-northeast-1.compute.amazonaws.com/ios/makuatsu/search_select_items", //塗装系、測定時点取得 API
 //                new RequestBody
 //                {
-                    
+
 //                }
 //            ); // レスポンスのステータスコードが成功していたら Answer の値を出力
 //        }
@@ -200,7 +278,7 @@ namespace Web_api
 
 //    class Response
 //    {
-        
+
 //    }
 
 //}
