@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 //using Login;
 using System.Net.Http.Json;
+using System.Numerics;
 //using Web_api;
 
 Console.WriteLine("Hello, World!");
@@ -21,10 +22,12 @@ namespace Web_api
             Login_api login_api = new Login_api();
             Search_select_items_api search_select_items_api = new Search_select_items_api();
             Paint_type_measurement_pots_get_api Paint_type_measurement_pots_get_api = new Paint_type_measurement_pots_get_api();
+            Film_thckness_measurement_plan_get_api Film_thckness_measurement_plan_get_api = new Film_thckness_measurement_plan_get_api();
 
             await login_api.LoginAsync();
             await search_select_items_api.Search_select_items();
             await Paint_type_measurement_pots_get_api.Paint_type_measurement_pots_get();
+            await Film_thckness_measurement_plan_get_api.Film_thckness_measurement_plan_get();
         }
     }
 
@@ -71,7 +74,8 @@ namespace Web_api
 
                 if (responseBody?.koj_id != null)
                 {
-                    Koji_id = (int)responseBody?.koj_id;
+                    // Koji_id = (int)responseBody?.koj_id;
+                    Koji_id = responseBody?.koj_id ?? -1; //koj_idがnullだったら-1,null以外だったらkoj_idを代入
                 }
                 
 
@@ -137,7 +141,6 @@ namespace Web_api
                     {
                         koj_id = Login_api.Koji_id
                     }
-
                 ); // レスポンスのステータスコードが成功していたら Answer の値を出力
 
 
@@ -179,9 +182,70 @@ namespace Web_api
 
     #endregion
 
-    #region ログイン　リクエスト・レスポンス
-    // リクエストとレスポンス
-    class RequestBody
+    #region 膜厚測定計画取得
+    class Film_thckness_measurement_plan_get_api
+    {
+        public async Task Film_thckness_measurement_plan_get()
+        {
+            if (Login_api.isLogin) // ログイン中の場合
+            {
+                // 塗装系、測定時点取得
+                var response = await Login_api.client.PostAsJsonAsync(
+                    "ios/makuatsu/plans",
+                    new RequestBody_plans
+                    {
+                        koj_id = Login_api.Koji_id
+                    }
+                ); // レスポンスのステータスコードが成功していたら Answer の値を出力
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("OK3!!!!");
+                    var responseBody = await response.Content.ReadFromJsonAsync<Response_plans>();
+
+                    if (responseBody != null)
+                    {
+                        if (responseBody?.plans != null)
+                        {
+                            for (int i = 0; i < responseBody?.plans.Length; i++)
+                            {
+                                Console.WriteLine(responseBody?.plans[i].sokuteijiten_name);
+
+                                if (responseBody?.plans[i].bodies != null)
+                                {
+                                    // if文でbodiesがnullではない時と言っているのにbodiesが「CS8602 - null 参照の可能性があるものの逆参照です。」とワーニングが出るため!を使用
+                                    for (int j = 0; j < responseBody?.plans[j].bodies!.Length; j++)
+                                    {
+                                        Console.WriteLine(responseBody?.plans[i].bodies![j].shanai_yti_day);
+
+                                        if (responseBody?.plans[i].bodies![j].results_in_company != null)
+                                        {
+                                            for (int k = 0; k < responseBody?.plans[i].bodies![j].results_in_company!.Length; k++)
+                                            {
+                                                Console.WriteLine(responseBody?.plans[i].bodies![j].results_in_company![k].no);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ERROR3!!!!");
+                }
+
+
+            }
+        }
+    }
+
+        #endregion
+
+        #region ログイン　リクエスト・レスポンス
+        // リクエストとレスポンス
+        class RequestBody
     {
         public string? username { get; set; }
         public string? password { get; set; }
@@ -269,6 +333,66 @@ namespace Web_api
         public string? name { get; set; }
         public int? site_id { get; set; }
         public int? plant_id { get; set; }
+    }
+
+    #endregion
+
+    #region 膜厚測定計画取得
+    class RequestBody_plans
+    {
+        public int? koj_id { get; set; }
+    }
+
+    class Response_plans
+    {
+        public plans[]? plans { get; set; }
+    }
+
+    class plans
+    {
+        public int? id { get; set; }
+        public int? site_id { get; set; }
+        public int? tosoukei_id { get; set; }
+        public string? tosoukei_name{ get; set; }
+        public int? sokuteijiten_id { get; set; }
+        public string? sokuteijiten_name { get; set; }
+        public int? lot_no { get; set; }
+        public int? tomakuatsu_id { get; set; }
+        public int? tomakuatsu { get; set; }
+        public bool? sokutei_flg { get; set; }
+        public bodies[]? bodies { get; set; }
+    }
+
+    class bodies
+    {
+        public int? id { get; set; }
+        public int? header_id { get; set; }
+        public int? sokuten_id { get; set; }
+        public string? sokuten_name { get; set; }
+        public bool? is_marker_target { get; set; }
+        public int? ccid { get; set; }
+        public string? shanai_yti_day { get; set; }
+        public string? hinsitsu_yti_day { get; set; }
+        public string? tachiai_yti_day { get; set; }
+        public bool? sokutei_flg { get; set; }
+        public bool? hinsitsu_sokutei_flg { get; set; }
+        public bool? tachiai_sokutei_flg { get; set; }
+        public double? last_average_result { get; set; }
+        public double? last_minimum_result { get; set; }
+        public double? last_std_dev_result { get; set; }
+        public double? hinsitsu_last_average_result { get; set; }
+        public double? hinsitsu_last_minimum_result { get; set; }
+        public double? hinsitsu_last_std_dev_result { get; set; }
+        public double? tachiai_last_average_result { get; set; }
+        public double? tachiai_last_minimum_result { get; set; }
+        public double? tachiai_last_std_dev_result { get; set; }
+        public results_in_company[]? results_in_company { get; set; }
+    }
+
+    class results_in_company
+    {
+        public int? no { get; set; }
+        public double? result { get; set; }
     }
 
     #endregion
