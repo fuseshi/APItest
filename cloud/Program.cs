@@ -141,7 +141,7 @@ namespace Web_api
                 ); // レスポンスのステータスコードが成功していたら Answer の値を出力
 
 
-            if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     Console.WriteLine("OK2!!!!");
                     var responseBody = await response.Content.ReadFromJsonAsync<Response_item_set>();
@@ -150,8 +150,20 @@ namespace Web_api
                     {
                         if (responseBody?.item_set != null)
                         {
-                            for (int i = 0; i < responseBody?.item_set.Length; i++)
-                                Console.WriteLine(responseBody?.item_set[i]);
+                            if (responseBody?.item_set.paint_types != null)
+                            {
+                                for (int i = 0; i < responseBody?.item_set.paint_types.Length; i++)
+                                {
+                                    Console.WriteLine(responseBody?.item_set.paint_types[i].name);
+                                } 
+                            }
+                            if (responseBody?.item_set.measurement_pots != null)
+                            {
+                                for (int i = 0; i < responseBody?.item_set.measurement_pots.Length; i++)
+                                {
+                                    Console.WriteLine(responseBody?.item_set.measurement_pots[i].name);
+                                }
+                            }
                         }
                     }
                 }
@@ -231,15 +243,32 @@ namespace Web_api
         public int? koj_id { get; set; }
     }
 
-class Response_item_set
+    class Response_item_set
     {
-        public item_set[]? item_set { get; set; }
+        public item_set? item_set { get; set; }
     }
 
     class item_set
     {
-        public string[]? paint_types { get; set; }
-        public string []? measurement_pots { get; set; }
+        public paint_types[]? paint_types { get; set; }
+        public measurement_pots[]? measurement_pots { get; set; }
+
+    }
+
+    class paint_types
+    {
+        public int? id { get; set; }
+        public string? name { get; set; }
+        public int? site_id { get; set; }
+        public int? plant_id { get; set; }
+    }
+
+    class measurement_pots
+    {
+        public int? id { get; set; }
+        public string? name { get; set; }
+        public int? site_id { get; set; }
+        public int? plant_id { get; set; }
     }
 
     #endregion
