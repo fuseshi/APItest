@@ -2,6 +2,7 @@
 //using Login;
 using System.Net.Http.Json;
 using System.Numerics;
+using System.Xml.Linq;
 //using Web_api;
 
 Console.WriteLine("Hello, World!");
@@ -23,11 +24,13 @@ namespace Web_api
             Search_select_items_api search_select_items_api = new Search_select_items_api();
             Paint_type_measurement_pots_get_api Paint_type_measurement_pots_get_api = new Paint_type_measurement_pots_get_api();
             Film_thckness_measurement_plan_get_api Film_thckness_measurement_plan_get_api = new Film_thckness_measurement_plan_get_api();
+            Film_thckness_measurement_plan_sokuten_change_api Film_thckness_measurement_plan_sokuten_change_api = new Film_thckness_measurement_plan_sokuten_change_api();
 
             await login_api.LoginAsync();
             await search_select_items_api.Search_select_items();
             await Paint_type_measurement_pots_get_api.Paint_type_measurement_pots_get();
             await Film_thckness_measurement_plan_get_api.Film_thckness_measurement_plan_get();
+            await Film_thckness_measurement_plan_sokuten_change_api.Film_thckness_measurement_plan_sokuten_change();
         }
     }
 
@@ -189,7 +192,7 @@ namespace Web_api
         {
             if (Login_api.isLogin) // ログイン中の場合
             {
-                // 塗装系、測定時点取得
+                // 膜厚測定計画取得
                 var response = await Login_api.client.PostAsJsonAsync(
                     "ios/makuatsu/plans",
                     new RequestBody_plans
@@ -241,11 +244,71 @@ namespace Web_api
         }
     }
 
-        #endregion
+    #endregion
 
-        #region ログイン　リクエスト・レスポンス
-        // リクエストとレスポンス
-        class RequestBody
+    #region 膜厚測定結果送信(複数)
+
+    #endregion
+
+    #region 膜厚測定計画測点変更
+    class Film_thckness_measurement_plan_sokuten_change_api
+    {
+        public async Task Film_thckness_measurement_plan_sokuten_change()
+        {
+            if (Login_api.isLogin) // ログイン中の場合
+            {
+                var request_data = new data
+                {
+                    site_id = 27,
+                    plan_header_id = 301,
+                    plan_body_id = 1502,
+                    name = "測点-27-25",
+                    is_marker_target = true
+                };
+
+                // 膜厚測定計画測点変更
+                var response = await Login_api.client.PostAsJsonAsync(
+                    "ios/makuatsu/update_sokuten",
+                    new RequestBody_data
+                    {
+                        data = request_data
+                    }
+                ); // レスポンスのステータスコードが成功していたら Answer の値を出力
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("OK4!!!!");
+                    var responseBody = await response.Content.ReadFromJsonAsync<Response_data>();
+
+                    if (responseBody != null)
+                    {
+                        if (responseBody?.result != null)
+                        {
+                            Console.WriteLine(responseBody?.result);
+                        }
+                        if (responseBody?.message != null)
+                        {
+                            Console.WriteLine(responseBody?.message);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ERROR4!!!!");
+                }
+
+            }
+        }
+    }
+
+
+    #endregion
+
+
+
+    #region ログイン　リクエスト・レスポンス
+    // リクエストとレスポンス
+    class RequestBody
     {
         public string? username { get; set; }
         public string? password { get; set; }
@@ -337,7 +400,7 @@ namespace Web_api
 
     #endregion
 
-    #region 膜厚測定計画取得
+    #region 膜厚測定計画取得 リクエスト・レスポンス
     class RequestBody_plans
     {
         public int? koj_id { get; set; }
@@ -396,6 +459,76 @@ namespace Web_api
     }
 
     #endregion
+
+    #region 膜厚測定結果送信(複数)　リクエスト・レスポンス
+    class RequestBody_result_datas
+    {
+        public result_datas[]? plans { get; set; }
+    }
+
+    class result_datas
+    {
+        public int? site_id { get; set; }
+        public int? plan_header_id { get; set; }
+        public int? plan_body_id { get; set; }
+        public working_datas[]? working_datas  { get; set; }
+        public string? sokuteisha_type { get; set; }
+        public string? sokuteisha_name { get; set; }
+        public string? note { get; set; }
+        public string? tempertature { get; set; }
+        public string? humidity { get; set; }
+        public string? weather { get; set; }
+        public string? signature { get; set; }
+        public string? created_at { get; set; }
+    }
+
+    class working_datas
+    {
+        public int? no { get; set; }
+        public string? updated_at { get; set; }
+        public double? result { get; set; }
+        public bool? is_use { get; set; }
+    }
+
+
+    class Response_result_datas
+    {
+        public bool? result { get; set; }
+        public string? message {  get; set; }
+    }
+
+    #endregion
+
+    #region 膜厚測定計画測点変更　リクエスト・レスポンス
+    class RequestBody_data
+    {
+        public data? data { get; set; }
+    }
+
+    class data
+    {
+        public int? site_id { get; set; }
+        public int? plan_header_id { get; set; }
+        public int? plan_body_id { get; set; }
+        public string? name { get; set; }
+        public bool? is_marker_target { get; set; }
+    }
+
+    class Response_data
+    {
+        public bool? result { get; set; }
+        public string? message { get; set; }
+    }
+
+    #endregion
+
+
+
+
+
+
+
+
 }
 
 #endregion
