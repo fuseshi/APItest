@@ -25,12 +25,14 @@ namespace Web_api
             Paint_type_measurement_pots_get_api Paint_type_measurement_pots_get_api = new Paint_type_measurement_pots_get_api();
             Film_thckness_measurement_plan_get_api Film_thckness_measurement_plan_get_api = new Film_thckness_measurement_plan_get_api();
             Film_thckness_measurement_plan_sokuten_change_api Film_thckness_measurement_plan_sokuten_change_api = new Film_thckness_measurement_plan_sokuten_change_api();
+            Film_thckness_measurement_add_plan_sokuten_kojo_api Film_thckness_measurement_add_plan_sokuten_kojo_api = new Film_thckness_measurement_add_plan_sokuten_kojo_api();
 
             await login_api.LoginAsync();
             await search_select_items_api.Search_select_items();
             await Paint_type_measurement_pots_get_api.Paint_type_measurement_pots_get();
             await Film_thckness_measurement_plan_get_api.Film_thckness_measurement_plan_get();
             await Film_thckness_measurement_plan_sokuten_change_api.Film_thckness_measurement_plan_sokuten_change();
+            await Film_thckness_measurement_add_plan_sokuten_kojo_api.Film_thckness_measurement_add_plan_sokuten_kojo();
         }
     }
 
@@ -296,7 +298,6 @@ namespace Web_api
                 {
                     Console.WriteLine("ERROR4!!!!");
                 }
-
             }
         }
     }
@@ -304,6 +305,82 @@ namespace Web_api
 
     #endregion
 
+    #region 膜厚測定計画追加(工場モード)
+    class Film_thckness_measurement_add_plan_sokuten_kojo_api
+    {
+        public async Task Film_thckness_measurement_add_plan_sokuten_kojo()
+        {
+            if (Login_api.isLogin) // ログイン中の場合
+            {
+                var request_item_header = new item_header
+                {
+                    ten_id = 202,   // きっと工場モードでは要らない
+                    koj_id = 50,    // 新宿駅前歩道橋工事(工事名略称：テスト現場-24)
+                    tosoukei_id = 0,    // 指定
+                    sokuteijiten_id = 0,    // 指定
+                    lot_no = 2, // 塗料のロット番号、1ロットあたり1点5箇所×5点=25箇所計測
+                    sokutei_flg = false,    // 指定
+                    tomakuatsu = 2002,  // 塗膜厚を計測した値
+                };
+
+                var request_item_body = new item_body
+                {
+                    sokutei_plan_header_id = 0, // 指定
+                    skt_id = 0,
+                    shanai_yti_day = "2023-10-01",
+                    hinsitsu_yti_day = "2023-10-01",
+                    tachiai_yti_day = "2023-10-01",
+                    sokutei_flg = false // 指定
+                };
+
+                var request_tosoukei_new_item = new tosoukei_new_item
+                {
+                    name = "塗装系名テスト5"
+                };
+
+                var request_sokuteijiten_new_item = new sokuteijiten_new_item
+                {
+                    name = "測定時点名テスト5"
+                };
+
+                var request_tomakuatsu_new_item = new tomakuatsu_new_item
+                {
+                    name = "2023"
+                };
+
+                var request_sokuten_new_item = new sokuten_new_item
+                {
+                    name = "測点名テスト5"
+                };
+
+                // 膜厚測定計画追加(工場モード)
+                var response = await Login_api.client.PostAsJsonAsync(
+                    "works/apis/sokutei_plan/store_plant",
+                    new RequestBody_add_plan
+                    {
+                        item_header = request_item_header,
+                        item_body = request_item_body,
+                        plant_id = 4,
+                        tosoukei_new_item = request_tosoukei_new_item,
+                        sokuteijiten_new_item = request_sokuteijiten_new_item,
+                        tomakuatsu_new_item = request_tomakuatsu_new_item,
+                        sokuten_new_item = request_sokuten_new_item
+                    }
+                ); // レスポンスのステータスコードが成功していたら Answer の値を出力
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("OK5!!!!");
+                }
+                else
+                {
+                    Console.WriteLine("ERROR5!!!!");
+                }
+            }
+        }
+    }
+
+    #endregion
 
 
     #region ログイン　リクエスト・レスポンス
@@ -522,7 +599,60 @@ namespace Web_api
 
     #endregion
 
+    #region 膜厚測定計画追加(工場モード)　リクエスト・レスポンス
+    class RequestBody_add_plan
+    {
+        public item_header? item_header { get; set; }
+        public item_body? item_body { get; set; }
+        public int? plant_id { get; set; }
+        public tosoukei_new_item? tosoukei_new_item { get; set; }
+        public sokuteijiten_new_item? sokuteijiten_new_item { get; set; }
+        public tomakuatsu_new_item? tomakuatsu_new_item { get; set; }
+        public sokuten_new_item? sokuten_new_item { get; set; }
+    }
 
+    class item_header
+    {
+        public int? ten_id { get; set; }
+        public int? koj_id { get; set; }
+        public int? tosoukei_id { get; set; }
+        public int? sokuteijiten_id { get; set; }
+        public int? lot_no { get; set; }
+        public bool? sokutei_flg { get; set; }
+        public int? tomakuatsu { get; set; }
+    }
+
+    class item_body
+    {
+        public int? sokutei_plan_header_id { get; set; }
+        public int? skt_id { get; set; }
+        public string? shanai_yti_day { get; set; }
+        public string? hinsitsu_yti_day { get; set; }
+        public string? tachiai_yti_day { get; set; }
+        public bool? sokutei_flg { get; set; }
+    }
+
+    class tosoukei_new_item
+    {
+        public string? name { get; set; }
+    }
+
+    class sokuteijiten_new_item
+    {
+        public string? name { get; set; }
+    }
+
+    class tomakuatsu_new_item
+    {
+        public string? name { get; set; }
+    }
+
+    class sokuten_new_item
+    {
+        public string? name { get; set; }
+    }
+
+    #endregion
 
 
 
